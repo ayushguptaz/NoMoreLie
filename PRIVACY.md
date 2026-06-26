@@ -14,7 +14,7 @@ NoMoreLie ("the extension") is a browser extension that fact-checks text you sel
 ## Data the extension handles
 
 ### 1. Selected text ("Website content")
-When you choose **Fact Check with NoMoreLie** from the right-click menu, the text you selected is sent to the AI provider you have configured so it can be analyzed. This text is only sent when you explicitly trigger a fact-check. It is not logged or stored by the developer.
+When you click **Fact Check** (via the floating button or right-click menu), the text you selected is sent to the AI provider you have configured so it can be analyzed. This text is only sent when you explicitly trigger a fact-check. It is not logged or stored by the developer.
 
 ### 2. Settings
 The extension stores your preferences locally using the browser's storage API:

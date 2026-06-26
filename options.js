@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const settings = await chrome.storage.sync.get([
     "provider", "groqApiKey", "groqModel",
-    "ollamaBaseUrl", "ollamaModel"
+    "ollamaBaseUrl", "ollamaModel", "showTooltip"
   ]);
 
   if (settings.provider) {
@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (settings.groqModel) document.getElementById("groqModel").value = settings.groqModel;
   if (settings.ollamaBaseUrl) document.getElementById("ollamaBaseUrl").value = settings.ollamaBaseUrl;
   if (settings.ollamaModel) document.getElementById("ollamaModel").value = settings.ollamaModel;
+  document.getElementById("showTooltip").checked = settings.showTooltip !== false;
 
   toggleSections();
 
@@ -34,7 +35,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       groqApiKey: document.getElementById("groqApiKey").value.trim(),
       groqModel: document.getElementById("groqModel").value,
       ollamaBaseUrl: document.getElementById("ollamaBaseUrl").value.trim() || "http://localhost:11434",
-      ollamaModel: document.getElementById("ollamaModel").value.trim() || "llama3"
+      ollamaModel: document.getElementById("ollamaModel").value.trim() || "llama3",
+      showTooltip: document.getElementById("showTooltip").checked
     };
 
     await chrome.storage.sync.set(data);

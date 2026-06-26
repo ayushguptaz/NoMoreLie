@@ -9,22 +9,19 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  if (info.menuItemId === "nomoreLie-factcheck" && info.selectionText && tab?.id != null) {
-    const ready = await ensureContentScript(tab.id);
-    if (!ready) return;
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === "nomoreLie-factcheck" && info.selectionText) {
     performFactCheck(info.selectionText, tab.url, tab.id);
   }
 });
 
-async function ensureContentScript(tabId) {
-  try {
-    await chrome.scripting.executeScript({ target: { tabId }, files: ["content.js"] });
-    return true;
-  } catch (e) {
-    return false;
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "FACT_CHECK") {
+    const { text, pageUrl } = message.payload;
+    performFactCheck(text, pageUrl, sender.tab.id);
   }
-}
+  return true;
+});
 
 async function performFactCheck(text, pageUrl, tabId) {
   chrome.tabs.sendMessage(tabId, { type: "FACT_CHECK_LOADING" });

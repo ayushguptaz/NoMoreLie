@@ -18,8 +18,8 @@ Copy/paste content for the Developer Dashboard submission.
 NoMoreLie is an AI-powered fact-checker that lives in your browser. Select any text on any web page — a news headline, a social media post, a forum comment, a product claim — and instantly verify whether it holds up.
 
 HOW IT WORKS
-1. Select text on any web page.
-2. Right-click and choose "Fact Check with NoMoreLie".
+1. Highlight text on any web page (10+ characters).
+2. Click the floating "Fact Check" button that appears, or right-click and choose "Fact Check with NoMoreLie".
 3. NoMoreLie breaks the text into individual claims and returns a clear verdict for each, with a short explanation and a confidence score.
 
 VERDICTS YOU CAN TRUST AT A GLANCE
@@ -63,16 +63,16 @@ Get started in seconds — install NoMoreLie, add your free Groq API key (or poi
 
 **Single purpose:**
 ```
-NoMoreLie lets users fact-check text they select on a web page. When the user clicks the right-click "Fact Check with NoMoreLie" menu item, the extension sends the selected text to an AI language model (Groq or a local Ollama server) and displays a verdict, explanation, and confidence score for each claim.
+NoMoreLie lets users fact-check text they select on a web page. The user selects text and triggers a check via the floating button or the right-click "Fact Check with NoMoreLie" menu item; the extension then sends the selected text to an AI language model (Groq or a local Ollama server) and displays a verdict, explanation, and confidence score for each claim.
 ```
 
 **Permission justifications:**
 - `contextMenus` — Adds a right-click "Fact Check with NoMoreLie" menu item for selected text.
 - `storage` — Stores the user's chosen AI provider, API key, model, and usage stats locally.
-- `activeTab` — Grants temporary access to the active tab only when the user clicks the context-menu item, so the results panel can be shown on that page.
-- `scripting` — Injects the results-panel UI into the active tab on demand (only after the user invokes the context menu); the extension has no always-on content script.
+- `activeTab` — Sends fact-check results back to the active tab to display the results panel.
 - Host permission `https://api.groq.com/*` — Sends the selected text to the Groq API when the user chooses Groq.
 - Host permission `http://localhost:11434/*` — Sends the selected text to a local Ollama server when the user chooses Ollama.
+- Content script on `<all_urls>` — The extension must detect text selection and show the floating button and results panel on any website the user visits.
 
 **Remote code use:** Select "No, I am not using remote code." If a justification is required:
 ```

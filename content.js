@@ -1,15 +1,41 @@
 (function () {
   "use strict";
 
-  if (window.__nomoreLieLoaded) return;
-  window.__nomoreLieLoaded = true;
-
   let hostEl = null;
   let shadow = null;
+  let selectedText = "";
+  let selectionTimeout = null;
 
   function getStyles() {
     return `
       * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      .nml-tooltip-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background: #1e293b;
+        color: #f8fafc;
+        border: none;
+        border-radius: 8px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transition: background 0.15s, transform 0.15s;
+        white-space: nowrap;
+      }
+      .nml-tooltip-btn:hover {
+        background: #334155;
+        transform: translateY(-1px);
+      }
+      .nml-tooltip-btn svg {
+        width: 14px;
+        height: 14px;
+        fill: currentColor;
+      }
 
       .nml-panel {
         width: 380px;
@@ -213,16 +239,50 @@
     if (el) el.remove();
   }
 
+  function showTooltip(rect) {
+    initShadowHost();
+    removeExisting(".nml-tooltip-btn");
+    removeExisting(".nml-panel");
+
+    const btn = document.createElement("button");
+    btn.className = "nml-tooltip-btn";
+    btn.innerHTML = `${SHIELD_SVG} Fact Check`;
+    btn.addEventListener("click", onFactCheckClick);
+
+    const x = rect.left + window.scrollX + (rect.width / 2) - 55;
+    const y = rect.top + window.scrollY - 40;
+
+    hostEl.style.cssText = `position:absolute;z-index:2147483647;left:${x}px;top:${y}px;`;
+    shadow.appendChild(btn);
+  }
+
+  function hideTooltip() {
+    if (!shadow) return;
+    removeExisting(".nml-tooltip-btn");
+  }
+
   function hideAll() {
     if (!hostEl) return;
+    removeExisting(".nml-tooltip-btn");
     removeExisting(".nml-panel");
-    hostEl.style.cssText = "position:fixed;z-index:2147483647;display:none;";
+    hostEl.style.cssText = "position:absolute;z-index:2147483647;display:none;";
+  }
+
+  function onFactCheckClick() {
+    if (!selectedText) return;
+    hideTooltip();
+    showPanel(renderLoading());
+
+    chrome.runtime.sendMessage({
+      type: "FACT_CHECK",
+      payload: { text: selectedText, pageUrl: window.location.href }
+    });
   }
 
   function showPanel(content) {
     initShadowHost();
     removeExisting(".nml-panel");
-    hostEl.style.cssText = "position:fixed;top:16px;right:16px;z-index:2147483647;";
+    hostEl.style.display = "";
 
     const panel = document.createElement("div");
     panel.className = "nml-panel";
@@ -281,7 +341,7 @@
     summary.className = `nml-summary ${verdictClass(data.overallVerdict)}`;
     summary.innerHTML = `
       <span class="nml-verdict-badge ${verdictClass(data.overallVerdict)}">${data.overallVerdict || "Unknown"}</span>
-      <span class="nml-summary-text">${escapeHtml(data.summary || "")}</span>
+      <span class="nml-summary-text">${data.summary || ""}</span>
     `;
     container.appendChild(summary);
 
@@ -299,7 +359,7 @@
         el.innerHTML = `
           <div class="nml-claim-header">
             <span class="nml-claim-statement">${escapeHtml(claim.statement)}</span>
-            <span class="nml-verdict-badge ${verdictClass(claim.verdict)}">${escapeHtml(claim.verdict)}</span>
+            <span class="nml-verdict-badge ${verdictClass(claim.verdict)}">${claim.verdict}</span>
           </div>
           <div class="nml-claim-explanation">${escapeHtml(claim.explanation || "")}</div>
           <div class="nml-confidence-bar">
@@ -320,6 +380,27 @@
     return div.innerHTML;
   }
 
+  // Selection listener
+  document.addEventListener("mouseup", (e) => {
+    if (hostEl && hostEl.contains(e.target)) return;
+
+    clearTimeout(selectionTimeout);
+    selectionTimeout = setTimeout(() => {
+      const selection = window.getSelection();
+      const text = selection.toString().trim();
+
+      if (text.length < 10) {
+        hideTooltip();
+        return;
+      }
+
+      selectedText = text;
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      showTooltip(rect);
+    }, 400);
+  });
+
   document.addEventListener("mousedown", (e) => {
     if (hostEl && shadow) {
       const path = e.composedPath();
@@ -329,6 +410,7 @@
     }
   });
 
+  // Message listener from background
   chrome.runtime.onMessage.addListener((message) => {
     if (message.type === "FACT_CHECK_LOADING") {
       showPanel(renderLoading());

@@ -11,16 +11,17 @@ AI-powered Chrome extension that fact-checks selected text on any webpage. Highl
 ## Features
 
 - **Instant fact-checking** — Select text on any page and verify claims in seconds
-- **Right-click context menu** — Select text → right-click → "Fact Check with NoMoreLie"
+- **Floating action button** — Appears automatically when you highlight text (10+ characters)
+- **Context menu** — Right-click selected text → "Fact Check with NoMoreLie"
 - **Structured results** — Overall verdict, summary, and individual claim analysis
 - **Dual AI providers** — Cloud (Groq) or local (Ollama)
-- **Privacy-conscious** — Runs only when invoked; no always-on page access
+- **Privacy-conscious** — AI calls run from the extension background worker, not the page itself
 
 ## How It Works
 
 1. Select text on any webpage
-2. Right-click and choose **Fact Check with NoMoreLie**
-3. The extension injects its UI into the active tab and sends the text to your configured AI provider
+2. Click the floating **Fact Check** button (or use the right-click context menu)
+3. The extension sends the text to your configured AI provider
 4. Results appear in an overlay panel with verdicts and confidence bars
 
 ### Verdicts
@@ -81,8 +82,9 @@ Open the extension popup and click **Settings**, or go to `chrome://extensions` 
 ```
 NoMoreLie/
 ├── manifest.json       # Extension manifest (MV3)
-├── background.js       # Service worker — orchestrates fact-checks, injects UI
-├── content.js          # Injected on demand — results panel (Shadow DOM)
+├── background.js       # Service worker — orchestrates fact-checks
+├── content.js          # Injected on all pages — selection UI + results panel
+├── content.css         # Minimal styles (most UI lives in Shadow DOM)
 ├── popup.html/js/css   # Extension popup — status & stats
 ├── options.html/js/css # Settings page — provider & API config
 ├── icons/              # Extension icons (16, 32, 48, 128 px)
@@ -95,27 +97,34 @@ NoMoreLie/
 
 ```
 ┌─────────────────────────────────────────────────────────┐
+│  Webpage (content.js)                                   │
+│  • Detects text selection                               │
+│  • Shows floating "Fact Check" button                   │
+│  • Renders results in Shadow DOM panel                  │
+└──────────────────────┬──────────────────────────────────┘
+                       │ chrome.runtime.sendMessage
+                       ▼
+┌─────────────────────────────────────────────────────────┐
 │  Background Service Worker (background.js)              │
-│  • Right-click menu fires with the selected text        │
-│  • Injects content.js into the active tab (activeTab)   │
+│  • Receives fact-check requests                         │
 │  • Loads settings from chrome.storage.sync              │
 │  • Builds prompts → calls AI provider                   │
-│  • Parses JSON response → sends to the injected script  │
+│  • Parses JSON response → sends back to content script  │
 │  • Persists stats to chrome.storage.local               │
-└───────────┬──────────────────────────────┬──────────────┘
-            │ scripting.executeScript       │ fetch()
-            ▼                               ▼
-┌───────────────────────────┐     ┌────────┴────────┐
-│  content.js (on demand)   │     │                 │
-│  • Renders results panel  │  Groq API        Ollama API
-│    in a Shadow DOM        │  api.groq.com   localhost:11434
-└───────────────────────────┘
+└──────────────────────┬──────────────────────────────────┘
+                       │ fetch()
+                       ▼
+              ┌────────┴────────┐
+              │                 │
+         Groq API           Ollama API
+    api.groq.com      localhost:11434
 ```
 
 ### Message flow
 
 | Direction | Message | Purpose |
 |-----------|---------|---------|
+| Content → Background | `FACT_CHECK` | Trigger fact-check with `{ text, pageUrl }` |
 | Background → Content | `FACT_CHECK_LOADING` | Show spinner |
 | Background → Content | `FACT_CHECK_RESULT` | Display parsed verdict |
 | Background → Content | `FACT_CHECK_ERROR` | Show error message |
@@ -126,12 +135,13 @@ NoMoreLie/
 |------------|-----|
 | `contextMenus` | Right-click "Fact Check" menu item |
 | `storage` | Save settings and usage stats |
-| `activeTab` | Temporary access to the active tab when invoked |
-| `scripting` | Inject the results UI into the active tab on demand |
+| `activeTab` | Message the current tab |
 | `https://api.groq.com/*` | Groq API calls |
 | `http://localhost:11434/*` | Local Ollama calls |
 
-API keys are stored in `chrome.storage.sync` and never exposed to webpage JavaScript. The extension has no always-on access to web pages — it only runs when you invoke it from the right-click menu.
+API keys are stored in `chrome.storage.sync` and never exposed to webpage JavaScript.
+
+> **Note:** The content script runs on all pages (`<all_urls>`) to power the floating button on text selection. Because this is a broad host permission, the Chrome Web Store may subject the extension to an in-depth review.
 
 ## Limitations
 
