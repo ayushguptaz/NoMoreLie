@@ -1,4 +1,10 @@
-# NoMoreLie
+<p align="center">
+  <img src="icons/icon128.png" alt="NoMoreLie logo" width="120" height="120">
+</p>
+
+<h1 align="center">NoMoreLie</h1>
+
+<p align="center">AI-powered Chrome extension that fact-checks selected text on any webpage.</p>
 
 AI-powered Chrome extension that fact-checks selected text on any webpage. Highlight a claim, click **Fact Check**, and get a structured verdict with per-claim breakdowns, confidence scores, and explanations.
 
