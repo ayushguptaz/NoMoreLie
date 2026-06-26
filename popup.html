@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <div class="popup-header">
+      <svg class="logo" viewBox="0 0 24 24"><path d="M12 2L3 7v5c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5zm-1 15l-4-4 1.41-1.41L11 14.17l6.59-6.59L19 9l-8 8z"/></svg>
+      <h1>NoMoreLie</h1>
+    </div>
+    <div class="popup-stats">
+      <div class="stat">
+        <span class="stat-value" id="totalChecks">0</span>
+        <span class="stat-label">Checks</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="lastCheck">Never</span>
+        <span class="stat-label">Last check</span>
+      </div>
+    </div>
+    <div class="popup-status" id="status">
+      <span class="status-dot"></span>
+      <span id="statusText">Checking configuration…</span>
+    </div>
+    <div class="popup-actions">
+      <button id="optionsBtn">Settings</button>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
