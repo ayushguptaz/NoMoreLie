@@ -2,6 +2,14 @@
 
 AI-powered Chrome extension that fact-checks selected text on any webpage. Highlight a claim, click **Fact Check**, and get a structured verdict with per-claim breakdowns, confidence scores, and explanations.
 
+## Screenshots
+
+> Replace these placeholders with real screenshots (drop the images in a `docs/` folder).
+
+| Floating button | Results panel | Settings |
+|-----------------|---------------|----------|
+| ![Floating fact-check button](docs/screenshot-tooltip.png) | ![Results panel with verdicts](docs/screenshot-results.png) | ![Settings page](docs/screenshot-settings.png) |
+
 ## Features
 
 - **Instant fact-checking** — Select text on any page and verify claims in seconds
@@ -36,7 +44,7 @@ Each claim is rated as one of:
 1. Clone this repository:
 
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/ayushguptaz/NoMoreLie.git
    cd NoMoreLie
    ```
 
@@ -144,4 +152,4 @@ API keys are stored in `chrome.storage.sync` and never exposed to webpage JavaSc
 
 ## License
 
-MIT
+Released under the [MIT License](LICENSE). © 2026 Ayush Gupta.
