@@ -64,4 +64,4 @@ This policy may be updated from time to time. Material changes will be reflected
 
 ## Contact
 
-For questions about this policy, contact: **REPLACE_WITH_YOUR_EMAIL@example.com**
+For questions about this policy, contact: **ayushgupta8009695@gmail.com**
