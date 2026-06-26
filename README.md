@@ -4,8 +4,6 @@ AI-powered Chrome extension that fact-checks selected text on any webpage. Highl
 
 ## Screenshots
 
-> Replace these placeholders with real screenshots (drop the images in a `docs/` folder).
-
 | Floating button | Results panel | Settings |
 |-----------------|---------------|----------|
 | ![Floating fact-check button](docs/screenshot-tooltip.png) | ![Results panel with verdicts](docs/screenshot-results.png) | ![Settings page](docs/screenshot-settings.png) |
