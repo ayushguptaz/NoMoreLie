@@ -1,6 +1,8 @@
 .dual-graph/
 .claude/
 .DS_Store
+CLAUDE.md
+CONTEXT.md
 
 # Build artifact (regenerate with the zip command)
 NoMoreLie-*.zip
